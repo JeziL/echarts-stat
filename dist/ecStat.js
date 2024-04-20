@@ -1498,20 +1498,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var len = rangeArray.length;
 
 	        var bins = new Array(len + 1);
+	        var leftBoundExtended = false;
+	        var rightBoundExtended = false;
 
 	        for (var i = 0; i <= len; i++) {
 	            bins[i] = {};
 	            bins[i].sample = [];
-	            bins[i].x0 = i > 0
-	                ? rangeArray[i - 1]
-	                : (rangeArray[i] - minValue) === step
-	                ? minValue
-	                : (rangeArray[i] - step);
-	            bins[i].x1 = i < len
-	                ? rangeArray[i]
-	                : (maxValue - rangeArray[i-1]) === step
-	                ? maxValue
-	                : rangeArray[i - 1] + step;
+	            if (i === 0) {
+	                if ((rangeArray[i] - minValue) === step) {
+	                    bins[i].x0 = minValue;
+	                } else {
+	                    bins[i].x0 = rangeArray[i] - step;
+	                    leftBoundExtended = true;
+	                }
+	            } else {
+	                bins[i].x0 = rangeArray[i - 1];
+	            }
+	            if (i === len) {
+	                if ((maxValue - rangeArray[i-1]) === step) {
+	                    bins[i].x1 = maxValue;
+	                } else {
+	                    bins[i].x1 = rangeArray[i - 1] + step;
+	                    rightBoundExtended = true;
+	                }
+	            } else {
+	                bins[i].x1 = rangeArray[i];
+	            }
 	        }
 
 	        for (var i = 0; i < values.length; i++) {
@@ -1520,6 +1532,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	        }
 
+	        if (opt.padBounds) {
+	            var binLen = bins.length;
+	            if (binLen >= 2) {
+	                if (leftBoundExtended) {
+	                    bins[1].sample = bins[1].sample.concat(bins[0].sample);
+	                    bins[0].sample = [];
+	                }
+	                if (rightBoundExtended) {
+	                    bins[binLen - 2].sample = bins[binLen - 2].sample.concat(bins[binLen - 1].sample);
+	                    bins[binLen - 1].sample = [];
+	                }
+	            }
+	        }
+	        
 	        var data = map(bins, function (bin) {
 	            // use function toFixed() to avoid data like '6.5666638489'
 	            return [
