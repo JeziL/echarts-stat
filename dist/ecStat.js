@@ -1547,9 +1547,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        
 	        var data = map(bins, function (bin) {
-	            // use function toFixed() to avoid data like '6.5666638489'
 	            return [
-	                +((bin.x0 + bin.x1) / 2).toFixed(toFixedPrecision),
+	                +((bin.x0 + bin.x1) / 2),
 	                bin.sample.length,
 	                bin.x0,
 	                bin.x1,
